@@ -7,6 +7,9 @@ import { fetchUserProducts , deleteProductWithLogs,sellProduct } from '../api/sh
 import '../css/Home.css';
 import ReportModal from '../components/ReportModal';
 import UpdateProductModal from './UpdateProductModal';
+import { getColumns } from '../components/tableColumns';
+import SellModal from '../components/SellModal';
+
 
 const { Header, Content, Sider } = Layout;
 
@@ -109,39 +112,13 @@ const handleConfirmSell = () => {
     messageApi.success('Mail başarıyla gönderildi.');
 };
 
-    const columns = [
-    { title: 'Ürün Adı', dataIndex: 'productName', key: 'productName' },
-    { title: 'Barkod No', dataIndex: 'barcodeNo', key: 'barcodeNo' },
-    { title: 'Fiyat (₺)', dataIndex: 'price', key: 'price' , render: (text) => `${text} ₺`},
-    { title: 'Stok Adedi', dataIndex: 'stockquantity', key: 'stockquantity' },
-    {
-        title: 'İşlemler',
-        key: 'actions',
-        render: (text, record) => (
-            <span>
-                <Button onClick={() => handleEditProduct(record)} type="primary">
-                    Düzenle
-                </Button>
-                <Button onClick={() => handleDeleteProduct(record.id)} type="primary" danger style={{ marginLeft: 8 }}>
-                    Sil
-                </Button>
-                <Button
-    onClick={() => handleSellProduct(record)}
-    type="primary"
-    style={{ marginLeft: 8, backgroundColor: 'green' }}
->
-    Satış Yap
-</Button>
-                <Button onClick={() => handleViewLogs(record.id)} type="primary" style={{ marginLeft: 8, backgroundColor: 'blue' }}>
-                    Rapor Görüntüle
-                </Button>
-                <Button onClick={() => handleSendReport()} type="primary" style={{ marginLeft: 8, backgroundColor: 'grey' }}>
-                    Rapor Gönder
-                </Button>
-            </span>
-        ),
-    },
-];
+   const columns = getColumns({
+    handleEditProduct,
+    handleDeleteProduct,
+    handleSellProduct,
+    handleViewLogs,
+    handleSendReport,
+});
 
     return (
         <Layout>
@@ -242,22 +219,14 @@ const handleConfirmSell = () => {
     userId={user?.userId}
     productId={selectedProductId} 
 />
-<Modal
-    title="Satış Yap"
-    open={isSellModalVisible}
-    onCancel={() => setIsSellModalVisible(false)}
-    onOk={handleConfirmSell}
-    okText="Satış Yap"
-    cancelText="İptal"
->
-    <p>{selectedProductForSell?.productName} ürününden kaç adet satmak istiyorsunuz?</p>
-    <Input
-        type="number"
-        max={selectedProductForSell?.stockquantity || 0}
-        value={sellQuantity}
-        onChange={(e) => setSellQuantity(parseInt(e.target.value) || 0 )}
-    />
-</Modal>
+<SellModal
+    isSellModalVisible={isSellModalVisible}
+    setIsSellModalVisible={setIsSellModalVisible}
+    handleConfirmSell={handleConfirmSell}
+    selectedProductForSell={selectedProductForSell}
+    sellQuantity={sellQuantity}
+    setSellQuantity={setSellQuantity}
+/>;
 
         </Layout>
         
