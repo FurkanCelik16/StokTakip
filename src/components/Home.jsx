@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Space, Layout, Menu, theme, Table, message, Modal, Form, Input, Button, notification } from 'antd';
+import { useEffect, useState } from 'react';
+import {Layout, Menu, theme, Table, message, Modal, Form, Input, Button,  } from 'antd';
 import { DropboxOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useUserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserProducts, addProduct, updateProduct, deleteProduct, isBarcodeDuplicate } from '../api/sheets';
+import { fetchUserProducts , deleteProductWithLogs,sellProduct } from '../api/sheets';
 import '../css/Home.css';
 import ReportModal from '../components/ReportModal';
-
+import UpdateProductModal from './UpdateProductModal';
 
 const { Header, Content, Sider } = Layout;
 
@@ -22,9 +22,8 @@ const Home = () => {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState(null); 
     const [isSellModalVisible, setIsSellModalVisible] = useState(false); 
-const [sellQuantity, setSellQuantity] = useState(1); 
-const [selectedProductForSell, setSelectedProductForSell] = useState(null); 
-
+    const [sellQuantity, setSellQuantity] = useState(1); 
+    const [selectedProductForSell, setSelectedProductForSell] = useState(null); 
     const [messageApi, contextHolder] = message.useMessage();
 
     const handleViewLogs = (productId) => {
@@ -60,11 +59,6 @@ const [selectedProductForSell, setSelectedProductForSell] = useState(null);
     }
 }, [user]);
 
-    
-
-      
-
-    
     const handleEditProduct = (product) => {
         setIsEditMode(true);
         setCurrentProductId(product.id);
@@ -78,83 +72,9 @@ const [selectedProductForSell, setSelectedProductForSell] = useState(null);
         setIsModalVisible(true);
     };
 
-    const handleDeleteProduct = async (productId) => {
-    try {
-        await deleteProduct(productId);
-        messageApi.success('Ürün başarıyla silindi.');
-        fetchUserProducts(user.userId).then(products => {
-    setUrunler(products);
-    setFilteredUrunler(products);
-});
-
-    } catch (error) {
-        console.error(error);   
-        messageApi.error('Ürün silinirken hata oluştu.');
-    }
+   const handleDeleteProduct = (productId) => {
+    deleteProductWithLogs(productId, user.userId, setUrunler, setFilteredUrunler, messageApi);
 };
-
-    
-    const handleAddProduct = async (values) => {
-        const newProduct = {
-            userId: parseInt(user.userId),
-            productName: values.productName,
-            barcodeNo: values.barcodeNo,
-            price: parseFloat(values.price),
-            stockquantity: parseInt(values.stockquantity),
-        };
-    
-        try {
-            const isDuplicate = await isBarcodeDuplicate(newProduct.barcodeNo, newProduct.userId);
-            if (isDuplicate) {
-                messageApi.error("Bu barkod numarasına sahip bir ürün zaten var.");
-                return;
-            }
-    
-            const successMessage = await addProduct(newProduct);
-            messageApi.success(successMessage);
-            setIsModalVisible(false);
-            form.resetFields();
-            fetchUserProducts(user.userId).then(setUrunler);
-        } catch (error) {
-            console.error("Detaylı Axios hatası:", error.message);
-            messageApi.error("Ürün eklenirken hata oluştu.");
-        }
-    };
-    
-
-    
-    const handleUpdateProduct = async (values) => {
-    const updatedProduct = {
-        id: currentProductId, 
-        productName: values.productName,
-        barcodeNo: values.barcodeNo,
-        price: parseFloat(values.price),
-        stockquantity: parseInt(values.stockquantity),
-    };
-
-    try {
-        const isDuplicate = await isBarcodeDuplicate(updatedProduct.barcodeNo, user.userId, currentProductId);
-        if (isDuplicate) {
-            messageApi.error("Bu barkod numarasına sahip başka bir ürün zaten var.");
-            return;
-        }
-
-        await updateProduct(currentProductId, updatedProduct, user.userId);
-        messageApi.success("Ürün başarıyla güncellendi!");
-
-        const refreshed = await fetchUserProducts(user.userId);
-        setUrunler(refreshed);
-        setFilteredUrunler(refreshed);
-
-        setIsModalVisible(false);
-        form.resetFields();
-        setIsEditMode(false);
-    } catch (error) {
-        messageApi.error("Ürün güncellenirken hata oluştu.");
-        console.error(error);
-    }
-};
-        
 
     const handleSearch = (e) => {
     const value = typeof e === "string" ? e : e.target.value;
@@ -168,13 +88,6 @@ const [selectedProductForSell, setSelectedProductForSell] = useState(null);
     );
 };
 
-    
-    const closeModal = () => {
-    setIsModalVisible(false);
-    setIsEditMode(false);
-    setCurrentProductId(null);
-    form.resetFields();
-};
 
 const handleSellProduct = (product) => {
     setSelectedProductForSell(product); 
@@ -182,39 +95,10 @@ const handleSellProduct = (product) => {
     setIsSellModalVisible(true); 
 };
 
-const handleConfirmSell = async () => {
+const handleConfirmSell = () => {
     if (!selectedProductForSell) return;
-
-    try {
-        const product = selectedProductForSell;
-        if (product.stockquantity >= sellQuantity) {
-            
-            const updatedProduct = { ...product, stockquantity: product.stockquantity - sellQuantity };
-
-            
-            await updateProduct(product.id, updatedProduct, user.userId);
-
-            
-            const updatedList = urunler.map(item =>
-                item.id === product.id ? updatedProduct : item
-            );
-            setUrunler(updatedList);
-            setFilteredUrunler(updatedList);
-
-            messageApi.success(`${sellQuantity} adet satış başarıyla yapıldı!`);
-        } else {
-            messageApi.error("Yeterli stok yok!");
-        }
-    } catch (error) {
-        messageApi.error("Satış işlemi sırasında hata oluştu.");
-        console.error(error);
-    } finally {
-        setIsSellModalVisible(false); 
-    }
+    sellProduct(selectedProductForSell, sellQuantity, user.userId, urunler, setUrunler, setFilteredUrunler, messageApi);
 };
-
-    
-
 
     const handleLogout = () => {
         setUser(null); 
@@ -267,9 +151,10 @@ const handleConfirmSell = async () => {
                 <Menu
                     theme="dark"
                     mode="horizontal"
-                    items={[{ key: '1', label: 'Ana Sayfa' }]}
+                    items={[{ key: '1', label: <span style={{color:'white'}}>Ana Sayfa</span> }]}
                     style={{ flex: 1, minWidth: 0 }}
                 />
+                <h2 style={{color:'white', marginRight:250 , marginTop:5}}>Stok Takip Uygulaması</h2>
 
 <Search
   placeholder="Barkod Numarası Giriniz"
@@ -277,7 +162,7 @@ const handleConfirmSell = async () => {
   onSearch={handleSearch}
         type="text" 
         onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, ''); // Sadece rakamlara izin ver
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
         }}
   enterButton
   style={{ width: 300, marginRight: 40 }}
@@ -327,79 +212,30 @@ const handleConfirmSell = async () => {
                             borderRadius: borderRadiusLG,
                         }}
                     >
-                        <h2>Ürünleriniz</h2>
+                        <h2 style={{marginLeft:3, marginTop:15}}>Ürünleriniz</h2>
                         <Table
   dataSource={filteredUrunler}
   columns={columns}
   rowKey={(record) => record.id}
+  style={{ marginTop: 16 }}
 />
                     </Content>
                 </Layout>
             </Layout>
 
-            {/* Ürün Ekleme/Güncelleme Modalı */}
-            <Modal
-                title={isEditMode ? "Ürün Güncelle" : "Yeni Ürün Ekle"}
-                open={isModalVisible}
-                onCancel={(closeModal)}
-                footer={null}
-            >
-                <Form form={form} onFinish={isEditMode ? handleUpdateProduct : handleAddProduct} layout="vertical">
-                    <Form.Item
-                        label="Ürün Adı"
-                        name="productName"
-                        rules={[{ required: true, message: 'Ürün adı gereklidir!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                   <Form.Item
-    label="Barkod No"
-    name="barcodeNo"
-    rules={[{ required: true, message: 'Barkod numarası gereklidir!' }]}
->
-    <Input
-        type="text" // "number" yerine "text" kullanıyoruz çünkü "number" negatif değerleri engellemiyor
-        onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, ''); // Sadece rakamlara izin ver
-        }}
-    />
-</Form.Item>
-<Form.Item
-    label="Fiyat"
-    name="price"
-    rules={[{ required: true, message: 'Fiyat gereklidir!' }]}
->
-    <Input
-        type="text"
-        onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9.]/g, ''); 
-            if ((e.target.value.match(/\./g) || []).length > 1) {
-                e.target.value = e.target.value.slice(0, -1); // Birden fazla ondalık işaretine izin verme
-            }
-        }}
-    />
-</Form.Item>
-
-<Form.Item
-    label="Stok Adedi"
-    name="stockquantity"
-    rules={[{ required: true, message: 'Stok adedi gereklidir!' }]}
->
-    <Input
-        type="number"
-        min={0}
-        onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '',); 
-        }}
-    />
-</Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
-                            {isEditMode ? "Güncelle" : "Ürün Ekle"}
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
+           <UpdateProductModal
+    isModalVisible={isModalVisible}
+    setIsModalVisible={setIsModalVisible}
+    isEditMode={isEditMode}
+    setIsEditMode={setIsEditMode}
+    currentProductId={currentProductId}
+    setCurrentProductId={setCurrentProductId}
+    form={form}
+    user={user}
+    setUrunler={setUrunler}
+    setFilteredUrunler={setFilteredUrunler}
+/>
+            
             <ReportModal
     open={isReportModalOpen}
     onClose={() => setIsReportModalOpen(false)}
