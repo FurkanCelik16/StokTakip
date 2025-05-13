@@ -1,4 +1,3 @@
-// src/api/sheets.js
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -15,7 +14,7 @@ export const fetchLogs = async (userId) => {
             .filter(log => String(log.userId) === String(userId))
             .map(log => ({
                 timeStamp: log.timeStamp,
-                productName: log.productName, // Ürün ismini döndür
+                productName: log.productName, 
                 productId: log.productId,
                 barcodeNo: log.barcodeNo,
                 operation: log.operation,
@@ -145,14 +144,13 @@ export const deleteProduct = async (productId) => {
     try {
         const url = `${urlProducts}/${productId}`;
 
-        // Silinecek ürünün bilgilerini alın
+        
         const productResponse = await axios.get(url);
         const deletedProduct = productResponse.data.product;
 
-        // Ürünü sil
         await axios.delete(url);
 
-        // Log ekleme işlemi
+        
         const logData = {
             log: {
                 timeStamp: new Date().toISOString(),
@@ -166,7 +164,7 @@ export const deleteProduct = async (productId) => {
             }
         };
 
-        // Logu Sheety API'ye gönderiyoruz
+        
         await axios.post(`${BASE_URL}/logs`, logData, {
             headers: { 'Content-Type': 'application/json' }
         });
