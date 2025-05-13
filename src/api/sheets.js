@@ -1,7 +1,7 @@
 // src/api/sheets.js
 import axios from 'axios';
 
-const BASE_URL = 'https://api.sheety.co/f2d39846c6e611ed8c4cbcca258279b8/stokTakip';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const urlProducts = `${BASE_URL}/products`;
 const urlUsers = `${BASE_URL}/users`;
