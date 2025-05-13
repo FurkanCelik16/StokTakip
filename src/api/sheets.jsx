@@ -77,12 +77,12 @@ export const addProduct = async (newProduct) => {
         // Log ekleme işlemi
         const logData = {
             log: {
-                timeStamp: new Date().toISOString(), // Güncel tarih ve saat
-                userId: newProduct.userId, // Kullanıcı ID'si
-                barcodeNo: newProduct.barcodeNo, // Barkod numarasını ekliyoruz
-                operation: "Ürün eklendi", // İşlem türü
-                oldstockValue: 0, // Eski stok değeri sıfır
-                newStockValue: newProduct.stockquantity, // Yeni stok değeri
+                timeStamp: new Date().toISOString(), 
+                userId: newProduct.userId, 
+                barcodeNo: newProduct.barcodeNo, 
+                operation: "Ürün eklendi", 
+                oldstockValue: 0, 
+                newStockValue: newProduct.stockquantity, 
             }
         };
 
@@ -101,33 +101,31 @@ export const addProduct = async (newProduct) => {
 
 export const updateProduct = async (productId, updatedProduct, userId) => {
     try {
-        // Ürün güncelleme URL'si
+        
         const url = `${urlProducts}/${productId}`;
 
-        // Güncellemeden önce mevcut ürün bilgilerini alıyoruz
+       
         const productResponse = await axios.get(url);
-        const oldProduct = productResponse.data.product; // Eski ürün bilgileri
+        const oldProduct = productResponse.data.product; 
 
-        // Ürün güncelleniyor
+       
         const response = await axios.put(url, { product: updatedProduct }, {
             headers: { 'Content-Type': 'application/json' }
         });
 
-        // Eğer stok durumu değiştiyse log gönder
         if (oldProduct.stockquantity !== updatedProduct.stockquantity) {
             const logData = {
                 log: {
-                    timeStamp: new Date().toISOString(), // Güncel tarih ve saat
-                    userId: userId, // Kullanıcı ID'si
-                    productId: productId, // Ürün ID'si
-                    barcodeNo: updatedProduct.barcodeNo, // Barkod numarası
-                    operation: "Stok güncellendi", // İşlem türü
-                    oldstockValue: oldProduct.stockquantity, // Eski stok değeri
-                    newStockValue: updatedProduct.stockquantity, // Yeni stok değeri
+                    timeStamp: new Date().toISOString(), 
+                    userId: userId, 
+                    productId: productId, 
+                    barcodeNo: updatedProduct.barcodeNo, 
+                    operation: "Stok güncellendi", 
+                    oldstockValue: oldProduct.stockquantity,
+                    newStockValue: updatedProduct.stockquantity, 
                 }
             };
 
-            // Logu API'ye gönderiyoruz
             await axios.post(`${BASE_URL}/logs`, logData, {
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -145,22 +143,22 @@ export const deleteProduct = async (productId) => {
     try {
         const url = `${urlProducts}/${productId}`;
 
-        // Silmeden önce ürün bilgilerini alıyoruz
+       
         const productResponse = await axios.get(url);
         const deletedProduct = productResponse.data.product;
 
-        // Ürün siliniyor
+       
         await axios.delete(url);
 
-        // Log ekleme işlemi
+        
         const logData = {
             log: {
                 timeStamp: new Date().toISOString(),
                 userId: deletedProduct.userId,
-                barcodeNo: deletedProduct.barcodeNo, // Barkod numarasını kullanıyoruz
+                barcodeNo: deletedProduct.barcodeNo, 
                 operation: "Ürün silindi",
-                oldstockValue: deletedProduct.stockquantity, // Eski stok değeri
-                newStockValue: null, // Yeni değer yok
+                oldstockValue: deletedProduct.stockquantity, 
+                newStockValue: null,
             }
         };
 

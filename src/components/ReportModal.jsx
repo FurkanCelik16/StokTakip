@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Table, message ,Button } from 'antd';
+import { Modal, Table, message, Button, DatePicker } from 'antd';
 import { fetchLogs } from '../api/sheets';
 
+const { RangePicker } = DatePicker;
 
 const ReportModal = ({ open, onClose, userId, productId }) => {
     const [logs, setLogs] = useState([]);
+    const [filteredLogs, setFilteredLogs] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedDateRange, setSelectedDateRange] = useState(null);
     const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         if (open && userId) {
             setLoading(true);
-            fetchLogs(userId) // Kullanıcı ID'sine göre logları al
+            fetchLogs(userId)
                 .then((data) => {
-                    // Eğer productId null ise tüm logları göster, değilse filtrele
-                    const filteredLogs = productId
+                    const filtered = productId
                         ? data.filter(log => String(log.productId) === String(productId))
                         : data;
-                    setLogs(filteredLogs);
+                    setLogs(filtered);
+                    setFilteredLogs(filtered); // Başlangıçta tüm logları göster
                 })
                 .catch(() => {
                     message.error('Loglar alınırken hata oluştu.');
@@ -26,20 +29,36 @@ const ReportModal = ({ open, onClose, userId, productId }) => {
         }
     }, [open, userId, productId]);
 
-    const columns = [
-       {
-  title: 'Tarih',
-  dataIndex: 'timeStamp',
-  key: 'timeStamp',
-  render: (text) => {
-    const date = new Date(text);
-    return `${date.toLocaleDateString('tr-TR')} ${date.toLocaleTimeString('tr-TR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`;
-  }
-},
+    const handleDateRangeChange = (dates) => {
+        setSelectedDateRange(dates);
+    };
 
+    const handleFilterLogs = () => {
+        if (selectedDateRange) {
+            const [start, end] = selectedDateRange;
+            const filtered = logs.filter(log => {
+                const logDate = new Date(log.timeStamp);
+                return logDate >= start.toDate() && logDate <= end.toDate();
+            });
+            setFilteredLogs(filtered);
+        } else {
+            setFilteredLogs(logs); // Tarih aralığı seçilmezse tüm logları göster
+        }
+    };
+
+    const columns = [
+        {
+            title: 'Tarih',
+            dataIndex: 'timeStamp',
+            key: 'timeStamp',
+            render: (text) => {
+                const date = new Date(text);
+                return `${date.toLocaleDateString('tr-TR')} ${date.toLocaleTimeString('tr-TR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}`;
+            }
+        },
         { title: 'Kullanıcı ID', dataIndex: 'userId', key: 'userId' },
         { title: 'Barkod No', dataIndex: 'barcodeNo', key: 'barcodeNo' },
         { title: 'İşlem', dataIndex: 'operation', key: 'operation' },
@@ -48,30 +67,39 @@ const ReportModal = ({ open, onClose, userId, productId }) => {
     ];
 
     const handleSendReport = () => {
-    messageApi.success('Mail başarıyla gönderildi.');
-};
+        messageApi.success('Mail başarıyla gönderildi.');
+    };
 
     return (
         <>
             {contextHolder}
-        <Modal
-            title="Ürün Raporları"
-            open={open}
-            onCancel={onClose}
-            footer={null}
-            width={800}
-        >
-            <Table
-                dataSource={logs}
-                columns={columns}
-                rowKey={(record, index) => index}
-                loading={loading}
-                pagination={{ pageSize: 10 }}
-            />
-            <Button onClick={() => handleSendReport()} type="primary" style={{ marginLeft: 8, backgroundColor: 'grey' }}>
-                    Rapor Gönder
-                </Button>
-        </Modal>
+            <Modal
+                title="Ürün Raporları"
+                open={open}
+                onCancel={onClose}
+                footer={null}
+                width={800}
+            >
+                <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
+                    <RangePicker
+                        onChange={handleDateRangeChange}
+                        style={{ marginRight: 16 }}
+                    />
+                    <Button onClick={handleFilterLogs} type="primary" style={{ marginRight: 16 }}>
+                        Görüntüle
+                    </Button>
+                    <Button onClick={handleSendReport} type="primary" style={{ backgroundColor: 'grey' }}>
+                        Rapor Gönder
+                    </Button>
+                </div>
+                <Table
+                    dataSource={filteredLogs}
+                    columns={columns}
+                    rowKey={(record, index) => index}
+                    loading={loading}
+                    pagination={{ pageSize: 10 }}
+                />
+            </Modal>
         </>
     );
 };

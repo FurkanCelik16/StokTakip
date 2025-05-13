@@ -17,24 +17,24 @@ const Home = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [isEditMode, setIsEditMode] = useState(false); 
-    const [currentProductId, setCurrentProductId] = useState(null); // Güncellenen ürünün ID'si
+    const [currentProductId, setCurrentProductId] = useState(null); 
     const [filteredUrunler, setFilteredUrunler] = useState([]);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-    const [selectedProductId, setSelectedProductId] = useState(null); // Seçilen ürünün ID'si
-    const [isSellModalVisible, setIsSellModalVisible] = useState(false); // Satış modalı kontrolü
-const [sellQuantity, setSellQuantity] = useState(1); // Satış miktarı
-const [selectedProductForSell, setSelectedProductForSell] = useState(null); // Satış yapılacak ürün
+    const [selectedProductId, setSelectedProductId] = useState(null); 
+    const [isSellModalVisible, setIsSellModalVisible] = useState(false); 
+const [sellQuantity, setSellQuantity] = useState(1); 
+const [selectedProductForSell, setSelectedProductForSell] = useState(null); 
 
     const [messageApi, contextHolder] = message.useMessage();
 
     const handleViewLogs = (productId) => {
-    setSelectedProductId(productId); // Seçilen ürünün ID'sini kaydet
-    setIsReportModalOpen(true); // Rapor modalını aç
+    setSelectedProductId(productId);
+    setIsReportModalOpen(true);
 };
     
-    // Raporlar menüsüne tıklandığında tüm logları göster
+    
     const handleViewAllLogs = () => {
-        setSelectedProductId(null); // Tüm logları göstermek için null ayarla
+        setSelectedProductId(null); 
         setIsReportModalOpen(true);
     };
     
@@ -125,7 +125,7 @@ const [selectedProductForSell, setSelectedProductForSell] = useState(null); // S
     
     const handleUpdateProduct = async (values) => {
     const updatedProduct = {
-        id: currentProductId, // Ürün ID'sini ekliyoruz
+        id: currentProductId, 
         productName: values.productName,
         barcodeNo: values.barcodeNo,
         price: parseFloat(values.price),
@@ -177,9 +177,9 @@ const [selectedProductForSell, setSelectedProductForSell] = useState(null); // S
 };
 
 const handleSellProduct = (product) => {
-    setSelectedProductForSell(product); // Satış yapılacak ürünü seç
-    setSellQuantity(1); // Varsayılan satış miktarını 1 olarak ayarla
-    setIsSellModalVisible(true); // Modalı aç
+    setSelectedProductForSell(product); 
+    setSellQuantity(1); 
+    setIsSellModalVisible(true); 
 };
 
 const handleConfirmSell = async () => {
@@ -188,13 +188,13 @@ const handleConfirmSell = async () => {
     try {
         const product = selectedProductForSell;
         if (product.stockquantity >= sellQuantity) {
-            // Stok adedini güncelle
+            
             const updatedProduct = { ...product, stockquantity: product.stockquantity - sellQuantity };
 
-            // API'yi güncelle
+            
             await updateProduct(product.id, updatedProduct, user.userId);
 
-            // State'i güncelle
+            
             const updatedList = urunler.map(item =>
                 item.id === product.id ? updatedProduct : item
             );
@@ -209,7 +209,7 @@ const handleConfirmSell = async () => {
         messageApi.error("Satış işlemi sırasında hata oluştu.");
         console.error(error);
     } finally {
-        setIsSellModalVisible(false); // Modalı kapat
+        setIsSellModalVisible(false); 
     }
 };
 
@@ -217,8 +217,8 @@ const handleConfirmSell = async () => {
 
 
     const handleLogout = () => {
-        setUser(null); // Kullanıcıyı sıfırlıyoruz
-        navigate('/'); // Giriş sayfasına yönlendiriyoruz
+        setUser(null); 
+        navigate('/'); 
     };
 
     const handleSendReport = () => {
@@ -275,6 +275,10 @@ const handleConfirmSell = async () => {
   placeholder="Barkod Numarası Giriniz"
   onChange={handleSearch}
   onSearch={handleSearch}
+        type="text" 
+        onInput={(e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, ''); // Sadece rakamlara izin ver
+        }}
   enterButton
   style={{ width: 300, marginRight: 40 }}
 />
@@ -348,12 +352,17 @@ const handleConfirmSell = async () => {
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item
-  label="Barkod No"
-  name="barcodeNo"
-  rules={[{ required: true, message: 'Barkod numarası gereklidir!' }]}
+                   <Form.Item
+    label="Barkod No"
+    name="barcodeNo"
+    rules={[{ required: true, message: 'Barkod numarası gereklidir!' }]}
 >
-  <Input type="number" min={0} disabled={isEditMode} />
+    <Input
+        type="text" // "number" yerine "text" kullanıyoruz çünkü "number" negatif değerleri engellemiyor
+        onInput={(e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, ''); // Sadece rakamlara izin ver
+        }}
+    />
 </Form.Item>
 <Form.Item
     label="Fiyat"
@@ -361,9 +370,9 @@ const handleConfirmSell = async () => {
     rules={[{ required: true, message: 'Fiyat gereklidir!' }]}
 >
     <Input
-        type="text" // "number" yerine "text" kullanıyoruz çünkü ondalıklı girişlerde sorun olabilir
+        type="text"
         onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9.]/g, ''); // Sadece pozitif sayılar ve ondalık işaretine izin ver
+            e.target.value = e.target.value.replace(/[^0-9.]/g, ''); 
             if ((e.target.value.match(/\./g) || []).length > 1) {
                 e.target.value = e.target.value.slice(0, -1); // Birden fazla ondalık işaretine izin verme
             }
@@ -380,7 +389,7 @@ const handleConfirmSell = async () => {
         type="number"
         min={0}
         onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '',); // Sadece pozitif sayılara izin ver
+            e.target.value = e.target.value.replace(/[^0-9]/g, '',); 
         }}
     />
 </Form.Item>
@@ -394,8 +403,8 @@ const handleConfirmSell = async () => {
             <ReportModal
     open={isReportModalOpen}
     onClose={() => setIsReportModalOpen(false)}
-    userId={user?.userId} // Giriş yapan kullanıcının ID'si
-    productId={selectedProductId} // Seçilen ürünün ID'si (null ise tüm loglar gösterilir)
+    userId={user?.userId}
+    productId={selectedProductId} 
 />
 <Modal
     title="Satış Yap"
