@@ -24,5 +24,5 @@ const ProductTable = ({ urunler, handleEditProduct, handleDeleteProduct, handleS
 
   return <Table dataSource={urunler} columns={columns} rowKey="id" style={{ marginTop: 16 }} />;
 };
-
+  
 export default ProductTable;
