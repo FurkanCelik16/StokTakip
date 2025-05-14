@@ -75,8 +75,19 @@ const Home = () => {
         setIsModalVisible(true);
     };
 
-   const handleDeleteProduct = (productId) => {
-    deleteProductWithLogs(productId, user.userId, setUrunler, setFilteredUrunler, messageApi);
+   const handleDeleteProduct = async (productId) => {
+    try {
+        // Ürünü API'den sil
+        await deleteProductWithLogs(productId, user.userId, setUrunler, setFilteredUrunler, messageApi);
+
+        // UI'dan hemen kaldırmak için listeyi güncelle
+        setUrunler((prevUrunler) => prevUrunler.filter((urun) => urun.id !== productId));
+        setFilteredUrunler((prevFilteredUrunler) => prevFilteredUrunler.filter((urun) => urun.id !== productId));
+
+    } catch (error) {
+        console.error('Ürün silinirken hata oluştu:', error);
+        messageApi.error('Ürün silinirken hata oluştu.');
+    }
 };
 
     const handleSearch = (e) => {

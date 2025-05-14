@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from 'antd';
 import { EditOutlined, DeleteOutlined, ShoppingCartOutlined, FileSearchOutlined, MailOutlined } from '@ant-design/icons';
 
@@ -18,30 +17,52 @@ export const getColumns = ({
         key: 'actions',
         render: (text, record) => (
             <span>
-                <Button onClick={() => handleEditProduct(record)} type="primary" icon={<EditOutlined />} style={{ marginLeft: 8 }}>
+                {/* Düzenle Butonu */}
+                <Button
+                    onClick={() => handleEditProduct(record)}
+                    type="primary"
+                    icon={<EditOutlined />}
+                    style={{ marginLeft: 8 }}
+                >
                     Düzenle
                 </Button>
-                <Button onClick={() => handleDeleteProduct(record.id)} type="primary" danger style={{ marginLeft: 8 }} icon={<DeleteOutlined />}>
+
+                {/* Sil Butonu */}
+                <Button
+                    onClick={() => handleDeleteProduct(record.id)}
+                    type="primary"
+                    danger
+                    style={{ marginLeft: 8 }}
+                    icon={<DeleteOutlined />}
+                >
                     Sil
                 </Button>
+
+                {/* Satış Yap Butonu */}
                 <Button
                     onClick={() => handleSellProduct(record)}
                     type="primary"
-                    style={{ marginLeft: 8, backgroundColor: 'green' }} icon={<ShoppingCartOutlined />}
+                    style={{ marginLeft: 8, backgroundColor: 'green', color: 'white' }}
+                    icon={<ShoppingCartOutlined />}
                 >
                     Satış Yap
                 </Button>
+
+                {/* Rapor Görüntüle Butonu */}
                 <Button
                     onClick={() => handleViewLogs(record.id)}
                     type="primary"
-                    style={{ marginLeft: 8, backgroundColor: 'blue' }} icon={<FileSearchOutlined />}
+                    style={{ marginLeft: 8, backgroundColor: 'blue', color: 'white' }}
+                    icon={<FileSearchOutlined />}
                 >
                     Rapor Görüntüle
                 </Button>
+
+                {/* Rapor Gönder Butonu */}
                 <Button
                     onClick={() => handleSendReport()}
                     type="primary"
-                    style={{ marginLeft: 8, backgroundColor: 'grey' }}
+                    style={{ marginLeft: 8, backgroundColor: 'grey', color: 'white' }}
                     icon={<MailOutlined />}
                 >
                     Rapor Gönder
