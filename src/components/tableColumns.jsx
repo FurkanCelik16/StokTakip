@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, ShoppingCartOutlined, FileSearchOutlined, MailOutlined } from '@ant-design/icons';
 
 export const getColumns = ({
@@ -28,15 +28,21 @@ export const getColumns = ({
                 </Button>
 
                 {/* Sil Butonu */}
-                <Button
-                    onClick={() => handleDeleteProduct(record.id)}
-                    type="primary"
-                    danger
-                    style={{ marginLeft: 8 }}
-                    icon={<DeleteOutlined />}
+                <Popconfirm
+                    title="Emin misiniz?"
+                    onConfirm={() => handleDeleteProduct(record.id)}
+                    okText="Evet"
+                    cancelText="Hayır"
                 >
-                    Sil
-                </Button>
+                    <Button
+                        type="primary"
+                        danger
+                        style={{ marginLeft: 8 }}
+                        icon={<DeleteOutlined />}
+                    >
+                        Sil
+                    </Button>
+                </Popconfirm>
 
                 {/* Satış Yap Butonu */}
                 <Button
