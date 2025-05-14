@@ -77,10 +77,8 @@ const Home = () => {
 
    const handleDeleteProduct = async (productId) => {
     try {
-        // Ürünü API'den sil
         await deleteProductWithLogs(productId, user.userId, setUrunler, setFilteredUrunler, messageApi);
 
-        // UI'dan hemen kaldırmak için listeyi güncelle
         setUrunler((prevUrunler) => prevUrunler.filter((urun) => urun.id !== productId));
         setFilteredUrunler((prevFilteredUrunler) => prevFilteredUrunler.filter((urun) => urun.id !== productId));
 
