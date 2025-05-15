@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchUserProducts , deleteProductWithLogs,sellProduct } from '../api/sheets';
 import '../css/Home.css';
 import ReportModal from '../components/ReportModal';
-import UpdateProductModal from './UpdateProductModal';
+import UpdateProductModal from '../components/UpdateProductModal';
 import { getColumns } from '../components/tableColumns';
 import SellModal from '../components/SellModal';
 
