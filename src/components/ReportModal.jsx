@@ -69,7 +69,7 @@ const ReportModal = ({ open, onClose, userId, productId }) => {
             title: 'Tarih',
             dataIndex: 'timeStamp',
             key: 'timeStamp',
-            sorter: (a, b) => new Date(a.timeStamp) - new Date(b.timeStamp), // Tarih sıralama
+            sorter: (a, b) => new Date(a.timeStamp) - new Date(b.timeStamp),
             render: (text) => {
                 const date = new Date(text);
                 return `${date.toLocaleDateString('tr-TR')} ${date.toLocaleTimeString('tr-TR', {

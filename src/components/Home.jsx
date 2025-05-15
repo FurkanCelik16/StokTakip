@@ -181,7 +181,7 @@ const handleConfirmSell = () => {
                                 children: [
                                     { key: '1', label: 'Ürün Listesi' },
                                     { key: '2', label: 'Ürün Ekle', onClick: () => setIsModalVisible(true) },
-                                    { key: '3', label: 'Raporlar', onClick: () => handleViewAllLogs() }, // Tüm logları göster
+                                    { key: '3', label: 'Raporlar', onClick: () => handleViewAllLogs() }, 
 ,
                                 ],
                             },

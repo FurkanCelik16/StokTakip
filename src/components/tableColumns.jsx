@@ -17,7 +17,7 @@ export const getColumns = ({
         key: 'actions',
         render: (text, record) => (
             <span>
-                {/* Düzenle Butonu */}
+              
                 <Button
                     onClick={() => handleEditProduct(record)}
                     type="primary"
@@ -27,7 +27,6 @@ export const getColumns = ({
                     Düzenle
                 </Button>
 
-                {/* Sil Butonu */}
                 <Popconfirm
                     title="Emin misiniz?"
                     onConfirm={() => handleDeleteProduct(record.id)}
@@ -44,7 +43,6 @@ export const getColumns = ({
                     </Button>
                 </Popconfirm>
 
-                {/* Satış Yap Butonu */}
                 <Button
                     onClick={() => handleSellProduct(record)}
                     type="primary"
@@ -54,7 +52,6 @@ export const getColumns = ({
                     Satış Yap
                 </Button>
 
-                {/* Rapor Görüntüle Butonu */}
                 <Button
                     onClick={() => handleViewLogs(record.id)}
                     type="primary"
@@ -64,7 +61,6 @@ export const getColumns = ({
                     Rapor Görüntüle
                 </Button>
 
-                {/* Rapor Gönder Butonu */}
                 <Button
                     onClick={() => handleSendReport()}
                     type="primary"
